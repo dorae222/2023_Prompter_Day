@@ -6,6 +6,8 @@ import os
 from response import *
 from introduce import *  # introduce.py에서 (팀,서비스) 소개글을 가져옴
 
+from textGenerator import * # textGenerator.py 
+
 # 환경 변수 로드
 load_dotenv()
 
@@ -76,7 +78,8 @@ if page_choice == "챗봇":
 
     # 사용자가 '보내기' 버튼을 눌렀을 때
     if submit_button and user_input:
-        output, _, _, _ = generate_response(user_input, model, st.session_state['messages'])
+        # output, _, _, _ = generate_response(user_input, model, st.session_state['messages'])
+        output = generate_quiz()
         st.session_state['past'].append(user_input)
         st.session_state['generated'].append(output)
         st.session_state['model_name'].append(model_name)
