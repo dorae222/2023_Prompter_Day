@@ -10,6 +10,7 @@ from langchain.utilities import SerpAPIWrapper
 from langchain.agents import initialize_agent
 from pydantic import BaseModel
 
+
 class ChatRequest(BaseModel):
     message: str
     temperature: float = 1
@@ -17,7 +18,7 @@ class ChatRequest(BaseModel):
 SYSTEM_MSG = "You are an expert in making quizzes to improve the language of elementary school students in Korea."
 
 ##########################################################################################################
-msg = input("무엇이 하고 싶으신가요?:")
+msg = "퀴즈 만들기"
 
 def classify_intent(msg):
     prompt = f"""Your job is to classify intent.
@@ -48,8 +49,16 @@ print('intent:',intent)
 if intent != "make_quiz":
     after_with=intent.split("the questioned word")[1].strip()
 
-print('after_with:',after_with)
-print('after_with type:',type(after_with))
+quesetion_template=f'''--------------------------------------------------------
+Question: ~ ___ ~
+
+option1:
+option2:
+option3:
+option4:
+
+해설: 해당 선택지가 정답인 이유 및 선택지의 의미 설명
+--------------------------------------------------------'''
 ##########################################################################################################
 if intent == "make_quiz":
     search = SerpAPIWrapper()
@@ -72,27 +81,25 @@ if intent == "make_quiz":
     test_list = ['금일', '사흘', '낭송', '사서', '고지식', '설빔']
     joined_str = ', '.join(test_list)
     ex_quiz=agent_chain.run(input=f'''
-                    ({joined_str})등과 같이 사람들이 헷갈리는 한국어 단어를 추가적으로 검색해서 10개 정도 단어를 새롭게 찾고,
-                    10개를 랜덤하게 선택해줘.
+                    Search for additional Korean words that people are confused about, such as {joined_str}), and find about 10 new words,
+                    Please choose 10 randomly.
                     '''
                     )
+    print('ex_quiz:',ex_quiz)
     agent_chain.run(input=f'''
-                    {ex_quiz}에 있는 단어 중 하나를 골라, 상황에 맞는 선택지를 고르는 4지 선다형 문제를 아래의 양식을 지켜 만들어줘.
-                    한국의 초등학교 저학년들의 문해력 향상을 위한 퀴즈야.
+                    I'm going to pick one of the words in {ex_quiz} and touch the problem.
+                    The problem contains the content of selecting a word by inferring the context with the word.
+                    Word places are presented in the blanks like ~_____~.
+                    Fill in the remaining options with words that can be confused with the correct word that can fit in the blank.
+                    Make sure to make the problem at the level of elementary school students and low school students.
+                    Answer only in Korean
+                    Follow the form below to create the problem:
 
-                    --------------------------------------------------------
-                    문제1: {ex_quiz} 중 선택된 단어를 활용한 상황 예제
-
-                    선택지1:
-                    선택지2:
-                    선택지3:
-                    선택지4:
-
-                    해설: 해당 선택지가 정답인 이유 및 선택지의 의미 설명
-                    --------------------------------------------------------
+                    {quesetion_template}
+                    
                     '''
                     )
-
+############################################################################################################
 elif intent != "make_quiz":
     search = SerpAPIWrapper()
     tools = [
