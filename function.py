@@ -21,35 +21,45 @@ load_dotenv(find_dotenv())
 def is_korean(word):
     return all(re.match(r'[\uac00-\ud7a3]', char) for char in word)
 
-def generate_issue_words(agent_chain, grade):
-    word_10 = agent_chain.run(
-        input=f'''This 10 word will be used to make the question for {grade} grade in South Korea elementary school.
-                  You need to make 10 words about Recent Current Events or Affairs in South Korea.
-                  It should be a contextually confusing word that has become a social issue in Korea.
-                  @@@You must answer in Korean.@@@
-                  
-                  @@@You must be followed:@@@
-                  word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
-                  '''
-                )
-    if all(is_korean(word) for word in word_10):
-        return word_10
-    
-    else:
-        refined_words = agent_chain.run(
-            input=f'''
-            @@@You need to make Korean words, not English@@@
-            10 word be a contextually confusing word that has become a social issue in Korea.
-            10 word should be a word at a level that korean elementary school {grade}nd grade can use.
-            @@@You must answer in Korean.@@@
+def remove_english_and_make_list(korean_with_english):
+    word_10_list = [word.strip() for word in korean_with_english.split(',')]
+    word_10_list_korean_only = [''.join(re.findall('[가-힣 ]+', word)).strip() for word in word_10_list]
+    return word_10_list_korean_only
 
+def generate_issue_words(agent_chain, grade):
+    try:
+        word_10 = agent_chain.run(
+            input=f'''This 10 word will be used to make the question for {grade} grade in South Korea elementary school.
+                    You need to make 10 words about Recent Current Events or Affairs in South Korea.
+                    It should be a contextually confusing word that has become a social issue in Korea.
+                    @@@You must answer in Korean.@@@
                     
-            @@@You must be followed:@@@
-            word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
-            '''
-            )
-        if all(is_korean(word) for word in refined_words):
-            return refined_words
+                    @@@You must be followed:@@@
+                    word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
+                    '''
+                    )
+        print('word_10:',word_10)
+        print('type(word_10):',type(word_10))
+        word_10=remove_english_and_make_list(word_10)
+        if all(is_korean(word) for word in word_10):
+            return random.sample(word_10, 5)
+        else:
+            refined_words = agent_chain.run(
+                input=f'''
+                @@@You need to make Korean words, not English@@@
+                10 word be a contextually confusing word that has become a social issue in Korea.
+                10 word should be a word at a level that korean elementary school {grade}nd grade can use.
+                @@@You must answer in Korean.@@@
+                        
+                @@@You must be followed:@@@
+                word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
+                '''
+                )
+            refined_words=remove_english_and_make_list(refined_words)
+            if all(is_korean(word) for word in refined_words):
+                return random.sample(refined_words, 5)
+    except:
+        return ['금일', '사흘', '낭송', '사서', '고지식']
 
 def extract_korean_words(refined_words):
     korean_words = re.findall(r'[\uac00-\ud7a3]+', refined_words)
@@ -123,7 +133,7 @@ def make_textbook_words_list(grade,sem,textbook_words,prompt_template):
     I would like to create a context quiz for the {sem} semester of the {grade} grade.
     For the corresponding collection of words ({textbook_words}), create a quiz by considering the part-time and frequency in.
     The following 14 conditions are followed:
-    0. Make 5 Questions.
+    0. ###Make 5 Questions###
     {prompt_template}
     '''
     print('textbook_words:',textbook_words)

@@ -17,8 +17,8 @@ from function import *
 import time
 
 def main():
-    # kind_of_data = "시사"
-    kind_of_data = "교과서"
+    kind_of_data = "시사"
+    # kind_of_data = "교과서"
     # kind_of_game = "어휘"
     kind_of_game = "문맥추론"
     grade = "5"
@@ -27,16 +27,17 @@ def main():
     test_list = ['금일', '사흘', '낭송', '사서', '고지식', '설빔']
     joined_str = ', '.join(test_list)
 
-    # 시사&문맥
+    # 시사& 문맥
     prompt_template_1 = f"""
+    0. ###Make 5 Questions###
+    1. The other option is to create a new one confusingly with the correct answer.
+    2. The options of all problems should not overlap those of other problems.
+    3. Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
+    4. In the description, as in the example, the reason for the answer and what the answer means should be explained.
+    5. Identify the meaning of the word used as the correct answer.
+    6. Answer is only one and toatl options are 4.
+    7. You shouldn't use a problem with @심심한사과@, you should only refer to it.
     If the answer to be used is @심심한사과@
-    The other option is to create a new one confusingly with the correct answer.
-    The options of all problems should not overlap those of other problems.
-    Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
-    In the description, as in the example, the reason for the answer and what the answer means should be explained.
-    Identify the meaning of the word used as the correct answer.
-    Answer is only one and toatl options are 4.
-    You shouldn't make a problem with an Sample, you should only refer to it.
     ------------------------------------------------------------------------------------------------------------------------
     This is Sample for Context Comprehension Question:
 
@@ -67,15 +68,16 @@ def main():
 
     # 시사 & 어휘
     prompt_template_3= f"""
+    0. ###Make 5 Questions###
+    1. The other option is to create a new one confusingly with the correct answer.
+    2. As shown in the example below, it consists of one correct answer and three other options.
+    3. The options of all problems should not overlap those of other problems.
+    4. Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
+    5. In the description, as in the example, the reason for the answer and what the answer means should be explained.
+    6. Identify the meaning of the word used as the correct answer.
+    7. Answer is only one and toatl options are 4.
+    8. You shouldn't make a problem with @실적@, you should only refer to it.
     If the answer to be used is @실적@
-    The other option is to create a new one confusingly with the correct answer.
-    As shown in the example below, it consists of one correct answer and three other options.
-    The options of all problems should not overlap those of other problems.
-    Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
-    In the description, as in the example, the reason for the answer and what the answer means should be explained.
-    Identify the meaning of the word used as the correct answer.
-    Answer is only one and toatl options are 4.
-    You shouldn't make a problem with an Sample, you should only refer to it.
     ------------------------------------------------------------------------------------------------------------------------
     This is Sample for Vocabulary Question:
 
@@ -91,7 +93,6 @@ def main():
     """
     # 교과서 & 문맥
     prompt_template_4 = f'''
-    If the answer to be used is @심심한 사과@
     1. The example below was made in consideration of 낱말 and 품사.
     2. The other option is to create a new one confusingly with the correct answer.
     3. ###Don't use 낱말 as it is, but change it to the context.###
@@ -103,8 +104,9 @@ def main():
     9. ###If the expression is not correct in Korean when creating a problem, correct it appropriately.###
     10. ###The options between problems must be different.###
     11. Don't use a person's name  and place name.
-    12. You shouldn't make a problem with an Sample, you should only refer to it.
+    12. You shouldn't make a problem with @심심한 사과@, you should only refer to it.
     13. Create content that fits 품사.
+    If the answer to be used is @심심한 사과@
     ------------------------------------------------------------------------------------------------------------------------
     This is Sample for Context Comprehension Question:
 
@@ -121,7 +123,6 @@ def main():
 
     # 교과서 & 어휘
     prompt_template_5 = f'''
-    If the answer to be used is @실적@
     1. The example below was made in consideration of 낱말 and 품사.
     2. The other option is to create a new one confusingly with the correct answer.
     3. ###Don't use 낱말 as it is, but change it to the context.###
@@ -133,8 +134,9 @@ def main():
     9. ###If the expression is not correct in Korean when creating a problem, correct it appropriately.###
     10. ###The options between problems must be different.###
     11. Don't use a person's name  and place name.
-    12. You shouldn't make a problem with an Sample, you should only refer to it.
+    12. You shouldn't make a problem with @실적@, you should only refer to it.
     13. Create content that fits 품사.
+    If the answer to be used is @실적@
     ------------------------------------------------------------------------------------------------------------------------
     This is Sample for Noun Vocabulary Question:
 
@@ -166,10 +168,10 @@ def main():
 
             agent_chain = initialize_agent(tools, llm, AgentType.CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=memory)
             refined_words_list = generate_issue_words(agent_chain, grade)
-            korean_words_5 = extract_korean_words(refined_words_list)
-            
+            print('refined_words_list:',refined_words_list)
+            # korean_words_5 = extract_korean_words(refined_words_list)
 
-            prompt1 = make_issue_prompt(prompt_template_1,korean_words_5,grade)
+            prompt1 = make_issue_prompt(prompt_template_3,refined_words_list,grade)
             question_response = create_questions(prompt1)
             final_json_response = convert_to_json(question_response, prompt_template_2)
             print('----------------------------------------------------------------')
@@ -190,12 +192,11 @@ def main():
             ]
 
             agent_chain = initialize_agent(tools, llm, AgentType.CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=memory)
-            print('aaaaaaaaaaaaa')
             refined_words_list = generate_issue_words(agent_chain, grade)
             print('refined_words_list:',refined_words_list)
-            korean_words_5 = extract_korean_words(refined_words_list)
+            # korean_words_5 = extract_korean_words(refined_words_list)
 
-            prompt1 = make_issue_prompt(prompt_template_3,korean_words_5,grade)
+            prompt1 = make_issue_prompt(prompt_template_3,refined_words_list,grade)
             question_response = create_questions(prompt1)
             final_json_response = convert_to_json(question_response, prompt_template_2)
             print('----------------------------------------------------------------')
