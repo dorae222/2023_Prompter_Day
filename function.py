@@ -31,7 +31,7 @@ def generate_issue_words(agent_chain, grade):
                   @@@You must be followed:@@@
                   word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
                   '''
-    )
+                )
     if all(is_korean(word) for word in word_10):
         return word_10
     
@@ -42,11 +42,12 @@ def generate_issue_words(agent_chain, grade):
             10 word be a contextually confusing word that has become a social issue in Korea.
             10 word should be a word at a level that korean elementary school {grade}nd grade can use.
             @@@You must answer in Korean.@@@
+
                     
             @@@You must be followed:@@@
             word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
             '''
-    )
+            )
         if all(is_korean(word) for word in refined_words):
             return refined_words
 
@@ -58,6 +59,7 @@ def extract_korean_words(refined_words):
     return random.sample(korean_words, 5)
 
 def make_issue_prompt(prompt_template,korean_words_5,grade):
+    print('korean_words_5:',korean_words_5)
     prompt = f'''
     Use {korean_words_5} as the correct answer to the question.
     The number of {korean_words_5} problems should be created.
@@ -120,7 +122,9 @@ def make_textbook_words_list(grade,sem,textbook_words,prompt_template):
     input = f'''
     I would like to create a context quiz for the {sem} semester of the {grade} grade.
     For the corresponding collection of words ({textbook_words}), create a quiz by considering the part-time and frequency in.
-    Make 5 Questions.
+    The following 14 conditions are followed:
+    0. Make 5 Questions.
     {prompt_template}
     '''
+    print('textbook_words:',textbook_words)
     return input
