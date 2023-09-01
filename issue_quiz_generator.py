@@ -11,18 +11,19 @@ from langchain.utilities import SerpAPIWrapper
 from langchain.agents import initialize_agent
 # 전처리 관련 라이브러리 모음
 import re
-
+import pandas as pd
 from function import *
 
 import time
 
 def main():
     count = 0
-    kind_of_data = "시사"
-    # kind_of_data = "교과서"
-    kind_of_game = "어휘"
-    # kind_of_game = "문맥추론"
-    grade = "2nd grade"
+    # kind_of_data = "시사"
+    kind_of_data = "교과서"
+    # kind_of_game = "어휘"
+    kind_of_game = "문맥추론"
+    grade = "5"
+    sem = "2"
 
     test_list = ['금일', '사흘', '낭송', '사서', '고지식', '설빔']
     joined_str = ', '.join(test_list)
@@ -32,8 +33,9 @@ def main():
     If the answer to be used is @심심한사과@
     The other option is to create a new one confusingly with the correct answer.
     The options of all problems should not overlap those of other problems.
-    Description should be within the category that elementary school {grade} students can understand as much as possible.
+    Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
     In the description, as in the example, the reason for the answer and what the answer means should be explained.
+    Identify the meaning of the word used as the correct answer.
     Answer is only one.
     ------------------------------------------------------------------------------------------------------------------------
     This is Sample for Context Comprehension Question:
@@ -69,8 +71,9 @@ def main():
     The other option is to create a new one confusingly with the correct answer.
     As shown in the example below, it consists of one correct answer and three other options.
     The options of all problems should not overlap those of other problems.
-    Description should be within the category that elementary school {grade} students can understand as much as possible.
+    Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
     In the description, as in the example, the reason for the answer and what the answer means should be explained.
+    Identify the meaning of the word used as the correct answer.
     Answer is only one.
     ------------------------------------------------------------------------------------------------------------------------
     This is Sample for Vocabulary Question:
@@ -85,6 +88,27 @@ def main():
     description: 정답은 1입니다. "실적"이 정답인 이유는 문장에서 "탁월하게 향상된"이라는 표현을 사용하고 있어, 선수가 경기에서 어떤 명확한 결과나 성과를 보였다는 의미를 강조하고 있습니다. "실적"이라는 단어는 성과나 결과를 구체적으로 나타내므로, 이 문맥에서 가장 적절하다고 볼 수 있습니다.
     ------------------------------------------------------------------------------------------------------------------------
     """
+
+    prompt_template_4 = f'''
+    If the answer to be used is @'낱말': '관용', '품사': 'Noun'@
+    The example below was made in consideration of words and parts of speech.
+    The other option is to create a new one confusingly with the correct answer.
+    The options of all problems should not overlap those of other problems.
+    Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.
+    In the description, as in the example, the reason for the answer and what the answer means should be explained.
+    Answer is only one.
+    ------------------------------------------------------------------------------------------------------------------------
+    This is Sample for Context Comprehension Question:
+
+    Question: 아래 문자에서 @ @사이에 들어올 표현을 고르세요.
+    content: "눈에는 눈, 이에는 이"라는 말은 우리나라에서 흔히 쓰이지만, 이것은 한국 문화의 @ @입니다.
+    
+    options: [관용, 신조, 전통, 현상]
+    
+    Value: 1
+    description: 정답은 1입니다. "관용"이 정답인 이유는 문장에서 "우리나라에서 흔히 쓰이지만"이라는 표현이 있어, 일반적인 논리나 해석과는 다르지만 특정 문화나 상황에서는 받아들여지는 표현이나 개념을 설명하고 있습니다.
+    ------------------------------------------------------------------------------------------------------------------------
+    '''
 
     start = time.time()
     memory = ConversationBufferMemory(memory_key="chat_history")
@@ -111,11 +135,10 @@ def main():
             final_json_response = convert_to_json(question_response, prompt_template_2)
             print('----------------------------------------------------------------')
             print('<final_json_response>\n',final_json_response)
-
             count += 1
-
+            return {final_json_response}
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"An error(1) occurred: {e}")
             count += 1
 
     elif kind_of_data == "시사" and kind_of_game == "어휘":
@@ -141,7 +164,25 @@ def main():
             count += 1
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"An error(2) occurred: {e}")
+            count += 1
+    elif kind_of_data == "교과서" and kind_of_game == "문맥추론":
+        try:
+            textbook_words = filter_by_grade_sem(grade, sem)
+            textbook_words_list = make_textbook_words_list(grade,sem,textbook_words,prompt_template_4)
+            question_response = create_questions(textbook_words_list)
+            final_json_response = convert_to_json(question_response, prompt_template_2)
+            print('----------------------------------------------------------------')
+            print('final_json_response:\n',final_json_response)
+            count += 1
+        except Exception as e:
+            print(f"An error(3) occurred: {e}")
+            count += 1
+    else:
+        try:
+            pass
+        except Exception as e:
+            print(f"An error(4) occurred: {e}")
             count += 1
     end = time.time()
     print(f"최종 실행 시간: {end - start:.5f} sec")

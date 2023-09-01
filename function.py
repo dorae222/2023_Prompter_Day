@@ -13,6 +13,7 @@ from langchain.agents import initialize_agent
 import re
 import json
 import random
+import pandas as pd
 
 from function import *
 load_dotenv(find_dotenv())
@@ -22,7 +23,7 @@ def is_korean(word):
 
 def generate_issue_words(agent_chain, grade):
     word_10 = agent_chain.run(
-        input=f'''This 10 word will be used to make the question for {grade} in South Korea elementary school.
+        input=f'''This 10 word will be used to make the question for {grade} grade in South Korea elementary school.
                   You need to make 10 words about Recent Current Events or Affairs in South Korea.
                   It should be a contextually confusing word that has become a social issue in Korea.
                   @@@You must answer in Korean.@@@
@@ -33,17 +34,21 @@ def generate_issue_words(agent_chain, grade):
     )
     if all(is_korean(word) for word in word_10):
         return word_10
+    
     else:
         refined_words = agent_chain.run(
-            input=f'''10 word be a contextually confusing word that has become a social issue in Korea.
-                    10 word should be a word at a level that korean elementary school {grade} can use.
-                    @@@You must answer in Korean.@@@
+            input=f'''
+            @@@You need to make Korean words, not English@@@
+            10 word be a contextually confusing word that has become a social issue in Korea.
+            10 word should be a word at a level that korean elementary school {grade}nd grade can use.
+            @@@You must answer in Korean.@@@
                     
-                    @@@You must be followed:@@@
-                    word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
-                    '''
+            @@@You must be followed:@@@
+            word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
+            '''
     )
-        return refined_words
+        if all(is_korean(word) for word in refined_words):
+            return refined_words
 
 def extract_korean_words(refined_words):
     korean_words = re.findall(r'[\uac00-\ud7a3]+', refined_words)
@@ -56,7 +61,7 @@ def make_issue_prompt(prompt_template,korean_words_5,grade):
     prompt = f'''
     Use {korean_words_5} as the correct answer to the question.
     The number of {korean_words_5} problems should be created.
-    Quiz should be a word at a level that south korean elementary school {grade} can use.
+    Quiz should be a word at a level that south korean elementary school {grade} grade can use.
     {prompt_template}
     '''
     return prompt
@@ -83,3 +88,39 @@ def convert_to_json(response, template):
         ],
     )
     return json_response.choices[0].message.content.strip()
+
+def filter_by_grade_sem(grade, sem):
+    df = pd.read_csv('./data/final_data.csv')
+    df.drop('Unnamed: 0', axis=1, inplace=True)
+    
+    grade, sem = int(grade), int(sem)
+    textbook_words_df = df[(df['학년'] == grade) & (df['학기'] == sem)]
+    
+    # 빈도수 또는 다른 측정값으로 정렬
+    sorted_df = textbook_words_df.sort_values(by='빈도수', ascending=False)
+    
+    # 상위 10%에 해당하는 단어만 추출
+    top_10_percent_idx = int(0.1 * len(sorted_df))
+    top_10_percent_df = sorted_df.iloc[:top_10_percent_idx]
+    
+    # 상위 10% 중에서 랜덤하게 5개를 선택
+    selected_words_df = top_10_percent_df.sample(5)
+    
+    textbook_words = []
+    for index, row in selected_words_df.iterrows():
+        word_dict = {
+            "낱말": row["낱말"],
+            "품사": row["품사"]
+        }
+        textbook_words.append(word_dict)
+    
+    return textbook_words
+
+def make_textbook_words_list(grade,sem,textbook_words,prompt_template):
+    input = f'''
+    I would like to create a context quiz for the {sem} semester of the {grade} grade.
+    For the corresponding collection of words ({textbook_words}), create a quiz by considering the part-time and frequency in.
+    Make 5 Questions.
+    {prompt_template}
+    '''
+    return input
