@@ -1,0 +1,22 @@
+0. ###Make 5 Questions###
+1. The other option is to create a new one confusingly with the correct answer.
+2. As shown in the example below, it consists of one correct answer and three other options.
+3. The options of all problems should not overlap those of other problems.
+4. <Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.>
+5. In the description, as in the example, the reason for the answer and what the answer means should be explained.
+6. Identify the meaning of the word used as the correct answer.
+7. Answer is only one and toatl options are 4.
+8. You shouldn't make a problem with @상경@, you should only refer to it.
+If the answer to be used is @상경@
+------------------------------------------------------------------------------------------------------------------------
+This is Sample for Vocabulary Question:
+
+Question: "<@ @사이 단어의 뜻을 읽고 올바르지 않게 사용된 문장을 골라주세요.>"
+
+content: @상경@은 지방에서 서울로 가는 것을 의미합니다. @상경@이 올바르게 사용되지 않은 문장은 무엇일까요?
+
+options: [청년들의 무작정 상경이 문제가 되고 있다., 상경하는 열차가 금방 출발했다., 지방으로 상경하는 열차가 방금 출발했다., 나의 꿈은 올해 상경하는 것이다.]
+
+Value: "3"
+description: 정답은 3입니다. 문맥적으로 고려하였을 때, 상경은 서울에서 지방으로 가는 것이지만 해당 선택지는 반대로 제시되어 있기 때문입니다.
+------------------------------------------------------------------------------------------------------------------------

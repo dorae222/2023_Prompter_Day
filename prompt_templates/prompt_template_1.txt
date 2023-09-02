@@ -1,0 +1,23 @@
+0. ###Make 5 Context Comprehension Question###
+1. The other option is to create a new one confusingly with the correct answer.
+2. As shown in the example below, it consists of one correct answer and three other options.
+3. The options of all problems should not overlap those of other problems.
+4. <Description should be within the category that elementary school {grade} grade {sem}semseter students can understand as much as possible.>
+5. In the description, as in the example, the reason for the answer and what the answer means should be explained.
+6. Identify the meaning of the word used as the correct answer.
+7. Answer is only one and toatl options are 4.
+8. You shouldn't make a problem with @실적@, you should only refer to it.
+9. You Must Answer In Korean Like Sample.
+10. The description should explain the context more clearly than the answer
+If the answer to be used is @실적@
+------------------------------------------------------------------------------------------------------------------------
+This is Sample for Context Comprehension Question:
+
+Question: "<@ @사이 단어의 의미로 가장 적절한것은?>"
+
+content: 그 선수는 최근 경기에서 탁월하게 향상된 @실적@으로 모두를 놀라게 했다.
+options: [매우 나쁜 실력, 어중간한 실력, 달라진 겉모습, 실제로 이뤄낸 업적]
+
+Value: "4"
+description: 정답은 4입니다. "실적"이란 거둔 일의 결과물을 뜻하므로 실제로 이뤄낸 업적이 정답입니다.
+------------------------------------------------------------------------------------------------------------------------

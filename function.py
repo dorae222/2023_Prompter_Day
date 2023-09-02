@@ -18,8 +18,12 @@ import pandas as pd
 from function import *
 load_dotenv(find_dotenv())
 
+def read_template(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return f.read()
+    
 def is_korean(word):
-    return all(re.match(r'[\uac00-\ud7a3]', char) for char in word)
+    return all(re.match(r'[\uac00-\ud7a3]|[\s]', char) for char in word)
 
 def remove_english_and_make_list(korean_with_english):
     word_10_list = [word.strip() for word in korean_with_english.split(',')]
@@ -30,16 +34,17 @@ def generate_issue_words(agent_chain, grade):
     try:
         word_10 = agent_chain.run(
             input=f'''This 10 word will be used to make the question for {grade} grade in South Korea elementary school.
-                    You need to make 10 words about Recent Current Events or Affairs in South Korea.
+                    You need to make 10 words about Recent Current Events in South Korea.
                     It should be a contextually confusing word that has become a social issue in Korea.
+                    If you refer to a newspaper article, you should use the latest week's data.
                     @@@You must answer in Korean.@@@
                     
-                    @@@You must be followed:@@@
+                    ----------------------------------------------------------------
+                    You must be followed:
                     word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
+                    ----------------------------------------------------------------
                     '''
                     )
-        print('word_10:',word_10)
-        print('type(word_10):',type(word_10))
         word_10=remove_english_and_make_list(word_10)
         if all(is_korean(word) for word in word_10):
             return random.sample(word_10, 5)
@@ -47,15 +52,19 @@ def generate_issue_words(agent_chain, grade):
             refined_words = agent_chain.run(
                 input=f'''
                 @@@You need to make Korean words, not English@@@
-                10 word be a contextually confusing word that has become a social issue in Korea.
                 10 word should be a word at a level that korean elementary school {grade}nd grade can use.
+                It should be a contextually confusing word that has become a social issue in Korea.
+                If you refer to a newspaper article, you should use the latest month's data.
                 @@@You must answer in Korean.@@@
-                        
+
+                ----------------------------------------------------------------        
                 @@@You must be followed:@@@
                 word1, word2, word3, word4, word5, word6, word7, word8,word9, word10
+                ----------------------------------------------------------------
                 '''
                 )
             refined_words=remove_english_and_make_list(refined_words)
+            refined_words = refined_words.split(',')
             if all(is_korean(word) for word in refined_words):
                 return random.sample(refined_words, 5)
     except:
@@ -78,28 +87,20 @@ def make_issue_prompt(prompt_template,korean_words_5,grade):
     '''
     return prompt
 
-def create_questions(prompt):
+def create_questions_and_convert_to_json(prompt1, prompt_template_2):
+    # 두 프롬프트를 하나의 메시지로 합침
+    merged_content = f"{prompt1}\n{prompt_template_2}"
+    
+    # API 호출
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": merged_content}
         ],
     )
+    
     return response.choices[0].message.content.strip()
 
-def convert_to_json(response, template):
-    json_response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "user",
-             "content": f'''
-                    {response}을 {template}처럼 json 형식으로 깔끔하게 작성해줘.
-                    제공해준 Key,Value값의 형태를 항상 유지해야한다.
-                    '''
-            }
-        ],
-    )
-    return json_response.choices[0].message.content.strip()
 
 def filter_by_grade_sem(grade, sem):
     df = pd.read_csv('./data/final_data.csv')
