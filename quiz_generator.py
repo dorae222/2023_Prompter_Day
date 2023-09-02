@@ -1,3 +1,8 @@
+# fast api
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 # Key값을 가져오기 위함
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
@@ -16,27 +21,30 @@ from function import *
 
 import time
 
-# @app.post("/game/")
-# url 예시: /game?grade=3&sem=1&type=sisa&game=context
-# def process_chat_data(grade: int, sem: int, game: str, type: str):
-# grade: number;
-# sem: number;
-# game: 'context' | 'word';
-# type: 'text' | 'sisa';
-def main(grade: str, sem: str, game: str, type: str):
-    ## kind_of_data = type # 시사데이터 또는 교과서데이터
-    kind_of_data = "시사" # sisa
-    # kind_of_data = "교과서" # text
-    
-    ## kind_of_game = game # 어휘 문제 또는 문맥추론 문제 
-    # kind_of_game = "어휘" # word
-    kind_of_game = "문맥추론" # context
-    
-    ## grade = grade # 학년
-    grade = "5"
-    ## sem = sem # 학기
-    sem = "2"
+# FastAPI
+app = FastAPI(debug = True)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["*"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+)
 
+# get 요청
+@app.get("/game/") # url 예시: /game?grade=3&sem=1&type=sisa&game=context
+def main(grade: str, sem: str, game: str, type: str):
+    # grade: number; 학년 # sem: number; 학기 # game: 'context' | 'word'; 문맥추론, 어휘 # type: 'text' | 'sisa'; 교과서 데이터, 시사 데이터 
+    if type == 'sisa':
+        kind_of_data = "시사" 
+    elif type == 'text':
+        kind_of_data = "교과서" 
+    
+    if game == 'context':
+        kind_of_game = "문맥추론" 
+    elif game == 'word':
+        kind_of_game = "어휘"
+    
     test_list = ['금일', '사흘', '낭송', '사서', '고지식', '설빔']
     joined_str = ', '.join(test_list)
 
@@ -225,6 +233,7 @@ def main(grade: str, sem: str, game: str, type: str):
             final_json_response = convert_to_json(question_response, prompt_template_2)
             print('----------------------------------------------------------------')
             print('final_json_response:\n',final_json_response)
+            return {final_json_response}
         except Exception as e:
             return None
     else:
@@ -235,10 +244,13 @@ def main(grade: str, sem: str, game: str, type: str):
             final_json_response = convert_to_json(question_response, prompt_template_2)
             print('----------------------------------------------------------------')
             print('final_json_response:\n',final_json_response)
+            return {final_json_response}
         except Exception as e:
             print(f"An error(4) occurred: {e}")
     end = time.time()
     print(f"최종 실행 시간: {end - start:.5f} sec")
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+    
+    uvicorn.run(app, host = "0.0.0.0", port = 8000)
