@@ -11,7 +11,7 @@
     "question": " ",
     "content": " ",
     "options": ["", "", "", ""],
-    "explain": {{
+    "explain": {
         "value" : " ",
         "description" : " "
     }
@@ -20,7 +20,7 @@
     "question": " ",
     "content": " ",
     "options": ["", "", "", ""],
-    "explain": {{
+    "explain": {
         "value" : " ",
         "description" : " "
     }
@@ -29,7 +29,7 @@
     "question": " ",
     "content": " ",
     "options": ["", "", "", ""],
-    "explain": {{
+    "explain": {
         "value" : " ",
         "description" : " "
     }
@@ -38,7 +38,7 @@
     "question": " ",
     "content": " ",
     "options": ["", "", "", ""],
-    "explain": {{
+    "explain": {
         "value" : " ",
         "description" : " "
     }
