@@ -77,7 +77,7 @@ def main(grade: str, sem: str, game: str, type: str):
             prompt1 = make_issue_prompt(prompt_template_1,refined_words_list,grade)
             final_json_response = create_questions_and_convert_to_json(prompt1, prompt_template_2)
 
-            return {final_json_response}
+            return final_json_response
         
         except Exception as e:
             return None
@@ -99,7 +99,7 @@ def main(grade: str, sem: str, game: str, type: str):
             prompt1 = make_issue_prompt(prompt_template_3,refined_words_list,grade)
             final_json_response = create_questions_and_convert_to_json(prompt1, prompt_template_2)
 
-            return {final_json_response}
+            return final_json_response
         
         except Exception as e:
             return None
@@ -110,7 +110,7 @@ def main(grade: str, sem: str, game: str, type: str):
             textbook_words_list = make_textbook_words_list(grade,sem,textbook_words,prompt_template_4)
             final_json_response = create_questions_and_convert_to_json(textbook_words_list, prompt_template_2)
 
-            return {final_json_response}
+            return final_json_response
         
         except Exception as e:
             return None
@@ -120,7 +120,7 @@ def main(grade: str, sem: str, game: str, type: str):
             textbook_words_list = make_textbook_words_list(grade,sem,textbook_words,prompt_template_5)
             final_json_response = create_questions_and_convert_to_json(textbook_words_list, prompt_template_2)
 
-            return {final_json_response}
+            return final_json_response
         
         except Exception as e:
             return None
