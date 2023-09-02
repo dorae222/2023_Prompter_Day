@@ -16,12 +16,25 @@ from function import *
 
 import time
 
-def main():
-    kind_of_data = "시사"
-    # kind_of_data = "교과서"
-    # kind_of_game = "어휘"
-    kind_of_game = "문맥추론"
+# @app.post("/chat/")
+# url 예시: /chat/grade=3&sem=1&type='sisa'&game='context'
+# def process_chat_data(grade: int, sem: int, game: str, type: str):
+# grade: number;
+# sem: number;
+# game: 'context' | 'word';
+# type: 'text' | 'sisa';
+def main(grade: str, sem: str, game: str, type: str):
+    ## kind_of_data = type # 시사데이터 또는 교과서데이터
+    kind_of_data = "시사" # sisa
+    # kind_of_data = "교과서" # text
+    
+    ## kind_of_game = game # 어휘 문제 또는 문맥추론 문제 
+    # kind_of_game = "어휘" # word
+    kind_of_game = "문맥추론" # context
+    
+    ## grade = grade # 학년
     grade = "5"
+    ## sem = sem # 학기
     sem = "2"
 
     test_list = ['금일', '사흘', '낭송', '사서', '고지식', '설빔']
