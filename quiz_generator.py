@@ -58,7 +58,7 @@ def main(grade: str, sem: str, game: str, type: str):
     prompt_template_5 = read_template('./prompt_templates/prompt_template_5.txt')
 
     memory = ConversationBufferMemory(memory_key="chat_history")
-    llm=OpenAI(temperature=0.8,model_name="gpt-4")
+    llm=OpenAI(temperature=0.8,model_name="gpt-3.5-turbo-0613")
 
     if kind_of_data == "시사" and kind_of_game == "문맥추론":
         try:
